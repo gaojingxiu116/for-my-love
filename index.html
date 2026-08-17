@@ -359,7 +359,7 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      opacity: 1;
+      opacity: 0;
       transition: opacity 0.5s ease;
     }
 
@@ -608,16 +608,6 @@
       // 1. 讓相框區塊淡入
       photoFrameSection.style.opacity = "1";
       photoFrameSection.style.pointerEvents = "auto"; // 恢復互動功能
-      
-      // 2. [可選] 如果想在相框淡入時再噴一次 CONFETTI：
-      setTimeout(() => {
-        confetti({
-          particleCount: 70,
-          spread: 50,
-          origin: { y: 0.7 }
-        });
-      }, 1000); // 延遲一下噴 confetti，更有驚喜感
-    }
 
     /* ------------------- 相機功能 JavaScript ------------------- */
     const cameraStreamVideo = document.getElementById('cameraStream');
