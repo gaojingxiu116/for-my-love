@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <!-- 手機端防放大與自適應設定 -->
+  <!-- iPhone 手機端防放大與安全區域設定 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Happy Birthday, My Love! ❤️</title>
   
@@ -28,7 +28,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      -webkit-tap-highlight-color: transparent; /* 移除手機點擊陰影 */
+      -webkit-tap-highlight-color: transparent; /* 移除 iPhone 點擊灰色陰影 */
     }
 
     body {
@@ -38,11 +38,13 @@
       overflow-x: hidden;
       line-height: 1.6;
       touch-action: manipulation;
+      /* iPhone 底邊安全距離避開 Home Bar */
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     /* ------------------- Hero 首頁區塊 ------------------- */
     .hero {
-      min-height: 100dvh; /* 動態適應手機網址列高度 */
+      min-height: 100dvh; /* iOS 動態網址列自適應高度 */
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -85,7 +87,6 @@
       position: relative;
     }
 
-    /* 手機端靠左時間軸線 */
     .timeline-container::before {
       content: '';
       position: absolute;
@@ -105,7 +106,6 @@
       padding-left: 45px;
     }
 
-    /* 時間軸愛心點點 */
     .timeline-item::after {
       content: '❤️';
       font-size: 12px;
@@ -118,7 +118,6 @@
       z-index: 1;
     }
 
-    /* 拍立得卡片 (適應手機滿版) */
     .polaroid {
       background: var(--card-bg);
       padding: 12px 12px 18px 12px;
@@ -192,7 +191,6 @@
       background-color: var(--accent-color);
     }
 
-    /* 信件內容卡片 */
     .letter-card {
       display: none;
       background: white;
@@ -283,21 +281,23 @@
       border-radius: 4px;
     }
 
-    /* 相機畫面 (自拍鏡像) */
+    /* 相機串流 (iPhone 自拍鏡像) */
     #cameraStream {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: none;
       transform: scaleX(-1);
+      -webkit-transform: scaleX(-1);
     }
 
-    /* 拍攝後呈現的靜態 Canvas 畫面 */
-    #photoCanvas {
+    /* 拍完後轉成的 <img> 圖片，iPhone 可直接長按儲存 */
+    #resultImage {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: none;
+      -webkit-touch-callout: default; /* 確保 iOS 支援長按選單 */
     }
 
     /* 預設提示內容 */
@@ -328,6 +328,15 @@
       margin-top: 4px;
     }
 
+    /* iPhone 專用提示字樣 */
+    .ios-hint {
+      font-size: 0.8rem;
+      color: #e88a8a;
+      margin-bottom: 12px;
+      display: none;
+      font-weight: 500;
+    }
+
     /* 按鈕容器群組 */
     .btn-group {
       display: flex;
@@ -338,7 +347,6 @@
       margin: 0 auto;
     }
 
-    /* 通用按鈕樣式 */
     .action-btn {
       background-color: var(--primary-color);
       color: white;
@@ -514,13 +522,16 @@
       <h3>Let's Capture a Memory</h3>
       <p>最後讓我們合照一張紀錄這一天吧！📸</p>
       
+      <!-- iOS 專用儲存提示 -->
+      <div class="ios-hint" id="iosHint">💡 拍照成功！長按上方照片即可「加入照片」喔！</div>
+
       <div class="memory-frame" id="memoryFrame">
-        <!-- 相機動態畫面 -->
+        <!-- iOS 相機必須要加上 playsinline, autoplay, muted -->
         <video id="cameraStream" autoplay playsinline muted></video>
         
-        <!-- 拍攝凍結後的畫面 -->
-        <canvas id="photoCanvas"></canvas>
-        
+        <!-- 拍攝後產生的靜態照片 (方便 iPhone 長按儲存) -->
+        <img id="resultImage" alt="合照結果" />
+
         <!-- 預設提示內容 -->
         <div class="frame-content" id="framePrompt">
           <div class="heart-icon">❤️</div>
@@ -529,19 +540,19 @@
         </div>
       </div>
       
-      <!-- 控制按鈕區 -->
+      <!-- 控制按鈕群組 -->
       <div class="btn-group">
         <!-- 開啟相機 / 快門按鈕 -->
         <button class="action-btn" id="mainCameraBtn" onclick="handleMainBtnClick()">
           📸 開啟相機
         </button>
 
-        <!-- 拍照完畢後顯示的 重拍 與 下載 按鈕 -->
+        <!-- 拍照完成後顯示的 重拍 與 下載 按鈕 -->
         <button class="action-btn secondary-btn" id="retakeBtn" onclick="retakePhoto()" style="display: none;">
           🔄 重拍
         </button>
         <button class="action-btn" id="downloadBtn" onclick="downloadPhoto()" style="display: none;">
-          ⬇️ 下載照片
+          ⬇️ 儲存照片
         </button>
       </div>
     </div>
@@ -596,10 +607,11 @@
       }
     }
 
-    /* ------------------- 相機與重拍、下載功能 ------------------- */
+    /* ------------------- 相機與重拍、iPhone 儲存優化 ------------------- */
     const cameraStreamVideo = document.getElementById('cameraStream');
-    const photoCanvas = document.getElementById('photoCanvas');
+    const resultImage = document.getElementById('resultImage');
     const framePrompt = document.getElementById('framePrompt');
+    const iosHint = document.getElementById('iosHint');
     
     const mainCameraBtn = document.getElementById('mainCameraBtn');
     const retakeBtn = document.getElementById('retakeBtn');
@@ -608,7 +620,7 @@
     let localStream = null;
     let isCameraActive = false;
 
-    // 主按鈕控制邏輯 (開啟相機 / 進行拍照)
+    // 按鈕邏輯
     async function handleMainBtnClick() {
       if (!isCameraActive) {
         await startCamera();
@@ -617,18 +629,25 @@
       }
     }
 
-    // 開啟相機
+    // 專為 iPhone/iOS 優化的開啟相機設定
     async function startCamera() {
       try {
-        localStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user' }, 
-          audio: false 
-        });
+        const constraints = {
+          video: { 
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 1280 }
+          },
+          audio: false
+        };
+
+        localStream = await navigator.mediaDevices.getUserMedia(constraints);
         
         cameraStreamVideo.srcObject = localStream;
         cameraStreamVideo.style.display = 'block';
-        photoCanvas.style.display = 'none';
+        resultImage.style.display = 'none';
         framePrompt.style.display = 'none';
+        iosHint.style.display = 'none';
 
         isCameraActive = true;
         mainCameraBtn.innerText = '📸 拍照';
@@ -636,39 +655,45 @@
         retakeBtn.style.display = 'none';
         downloadBtn.style.display = 'none';
       } catch (error) {
-        console.error('無法存取相機:', error);
-        alert('請允許相機權限才能進行合照喔！');
+        console.error('iPhone 相機啟動失敗:', error);
+        alert('請允許相機存取權限！\n若您使用的是 LINE/FB 內建瀏覽器，請點選右上角改用「Safari 開啟」。');
       }
     }
 
-    // 拍照並將畫面靜態化 (Freeze)
+    // 拍照並生成靜態圖片
     function takePhoto() {
+      const canvas = document.createElement('canvas');
       const width = cameraStreamVideo.videoWidth || 640;
       const height = cameraStreamVideo.videoHeight || 640;
 
-      photoCanvas.width = width;
-      photoCanvas.height = height;
+      canvas.width = width;
+      canvas.height = height;
 
-      const ctx = photoCanvas.getContext('2d');
+      const ctx = canvas.getContext('2d');
 
-      // 水平翻轉畫布，讓拍攝照片呈現正確的方向（非鏡像）
+      // 水平翻轉畫布，使下載照片人物方向與真實相符
       ctx.translate(width, 0);
       ctx.scale(-1, 1);
       ctx.drawImage(cameraStreamVideo, 0, 0, width, height);
 
-      // 隱藏 video 動態畫面，顯示畫好的 canvas 靜態照片
-      cameraStreamVideo.style.display = 'none';
-      photoCanvas.style.display = 'block';
+      // 轉換成圖片 DataURL，供 iPhone 直接顯示與長按儲存
+      const dataURL = canvas.toDataURL('image/png');
+      resultImage.src = dataURL;
 
-      // 關閉相機串流省電
+      // 切換畫面：隱藏影片、顯示靜態圖片
+      cameraStreamVideo.style.display = 'none';
+      resultImage.style.display = 'block';
+      iosHint.style.display = 'block'; // 顯示 iPhone 長按提示
+
+      // 關閉相機鏡頭以省電
       stopCameraStream();
 
-      // 切換按鈕狀態：隱藏主按鈕，顯示「重拍」與「下載」
+      // 切換按鈕為 重拍 與 儲存照片
       mainCameraBtn.style.display = 'none';
       retakeBtn.style.display = 'inline-flex';
       downloadBtn.style.display = 'inline-flex';
 
-      // 慶祝彩帶
+      // 噴彩帶慶祝
       confetti({
         particleCount: 100,
         spread: 80,
@@ -676,22 +701,24 @@
       });
     }
 
-    // 重新拍攝
+    // 重拍功能
     function retakePhoto() {
       startCamera();
     }
 
-    // 下載拍照結果
+    // iPhone 相容的圖片下載/儲存處理
     function downloadPhoto() {
-      const imageURL = photoCanvas.toDataURL('image/png');
-      const downloadLink = document.createElement('a');
-      downloadLink.href = imageURL;
-      downloadLink.download = 'our-birthday-photo.png';
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+      if (!resultImage.src) return;
 
-      // 再次發送彩帶
+      // 嘗試標準下載
+      const a = document.createElement('a');
+      a.href = resultImage.src;
+      a.download = 'our-birthday-photo.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // 再次發送彩帶慶祝
       confetti({
         particleCount: 80,
         spread: 70,
@@ -699,7 +726,7 @@
       });
     }
 
-    // 關閉鏡頭串流
+    // 關閉相機串流
     function stopCameraStream() {
       if (localStream) {
         localStream.getTracks().forEach(track => track.stop());
