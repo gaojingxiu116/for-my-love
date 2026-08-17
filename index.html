@@ -11,6 +11,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- 新增：網頁長圖截圖套件 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
     /* ------------------- 全局樣式 ------------------- */
@@ -220,7 +222,7 @@
     /* ------------------- 相框與拍照區塊 ------------------- */
     .photo-frame-section {
       text-align: center;
-      margin: 30px auto 80px;
+      margin: 30px auto 40px;
       max-width: 100%;
       padding: 0 16px;
     }
@@ -379,6 +381,41 @@
       background-color: #736464;
     }
 
+    /* ------------------- 長圖下載彈窗 (iPhone相容) ------------------- */
+    .image-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 9999;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      text-align: center;
+    }
+
+    .image-modal-content {
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+      margin-top: 10px;
+    }
+
+    .modal-close-btn {
+      background: white;
+      color: #333;
+      border: none;
+      padding: 10px 24px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border-radius: 30px;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+
     /* ------------------- 動畫 ------------------- */
     @keyframes fadeInDown {
       from { opacity: 0; transform: translateY(-20px); }
@@ -417,7 +454,7 @@
       <div class="polaroid">
         <img src="images/1.webp" alt="照片 1" loading="lazy">
         <div class="caption">
-          <div class="date">2023.07.26</div>
+          <div class="date">2024.07.26</div>
           <div class="title">我們一起去看電影🎬🍿</div>
         </div>
       </div>
@@ -557,6 +594,23 @@
       </div>
     </div>
   </section>
+
+  <!-- 5. 新增：儲存整頁長圖片區塊 -->
+  <div style="text-align: center; margin: 20px auto 60px; padding: 0 16px;">
+    <button class="action-btn secondary-btn" id="downloadLongImgBtn" onclick="downloadLongImage(event)" style="max-width: 280px; width: 100%;">
+      📸 儲存整頁長圖片
+    </button>
+    <p style="font-size: 0.8rem; color: #b5a5a5; margin-top: 8px;">
+      💡 提示：可將包含相片的完整回憶頁面匯出為圖片保存！
+    </p>
+  </div>
+
+  <!-- 手機長按儲存長圖彈窗 -->
+  <div class="image-modal" id="imageModal">
+    <button class="modal-close-btn" onclick="closeModal()">✕ 關閉預覽</button>
+    <p style="color: white; font-size: 0.9rem; margin-bottom: 10px;">👇 請「長按下方圖片」選擇【加入照片】或【儲存圖片】</p>
+    <img id="modalImg" class="image-modal-content" src="" alt="整頁長圖" />
+  </div>
 
   <script>
     // 真心話內容
@@ -714,9 +768,7 @@
       const a = document.createElement('a');
       a.href = resultImage.src;
       a.download = 'our-birthday-photo.png';
-      document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
 
       // 再次發送彩帶慶祝
       confetti({
@@ -733,6 +785,61 @@
         localStream = null;
       }
       isCameraActive = false;
+    }
+
+    /* ------------------- 新增：儲存整頁長圖片功能 ------------------- */
+    async function downloadLongImage(event) {
+      const btn = document.getElementById('downloadLongImgBtn');
+      const originalText = btn.innerText;
+
+      btn.innerText = "⏳ 產生圖片中...";
+      btn.disabled = true;
+
+      try {
+        // 渲染整頁 body 為長圖 Canvas
+        const canvas = await html2canvas(document.body, {
+          scale: 2,         // 2倍清晰度
+          useCORS: true,    // 支援跨域圖片
+          logging: false,
+          windowWidth: document.documentElement.offsetWidth,
+          windowHeight: document.documentElement.offsetHeight
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+
+        // 判斷是否為流動裝置 (iOS / Android)
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        if (isMobile) {
+          // 手機版：彈出 Modal 供使用者長按儲存
+          document.getElementById('modalImg').src = imgData;
+          document.getElementById('imageModal').style.display = 'block';
+        } else {
+          // 電腦版：直接觸發圖片下載
+          const link = document.createElement('a');
+          link.download = 'happy-birthday-memories.png';
+          link.href = imgData;
+          link.click();
+        }
+
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.8 }
+        });
+
+      } catch (err) {
+        alert("長圖產生失敗，請確認圖片連結正常！");
+        console.error(err);
+      } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    // 關閉長圖彈窗
+    function closeModal() {
+      document.getElementById('imageModal').style.display = 'none';
     }
   </script>
 </body>
