@@ -518,7 +518,7 @@
           <img src="images/8.png" alt="照片 8" loading="lazy">
           <div class="caption">
             <div class="date">2026.03.01</div>
-            <div class="title">陪 me 去搭飛機 ✈️</div>
+            <div class="title">陪我去搭飛機 ✈️</div>
           </div>
         </div>
       </div>
@@ -683,7 +683,7 @@
         downloadBtn.style.display = 'none';
       } catch (error) {
         console.error('iPhone 相機啟動失敗:', error);
-        alert('請允許相機權限！若您使用的是 LINE，請改用 Safari 開啟。');
+        alert('請允許相機權限！若您使用的是 LINE，請點選右上角選單改用「Safari 開啟」。');
       }
     }
 
@@ -751,57 +751,118 @@
       isCameraActive = false;
     }
 
-    /* ------------------- 5. 打包截圖整頁紀念長圖 ------------------- */
+    /* ------------------- 5. 打包截圖整頁紀念長圖 (iPhone 深度優化版) ------------------- */
     async function exportFullPage() {
       const saveBtn = document.getElementById('savePageBtn');
-      saveBtn.innerText = '⏳ 正在打包產生照片中...';
+      saveBtn.innerText = '⏳ 正在產生紀念長圖中...';
       saveBtn.disabled = true;
 
-      // 確保相機關閉，避免黑屏
+      // 1. 確保關閉鏡頭串流，避免 iOS 相機畫面渲染黑屏
       stopCameraStream();
 
       try {
         const captureArea = document.getElementById('captureArea');
 
-        // 使用 html2canvas 將畫面繪製成圖片
-        const canvas = await html2canvas(captureArea, {
-          scale: 2, // 提高清晰度
-          useCORS: true, // 允許跨域圖片
+        // 2. 判斷是否為 iOS / iPhone
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+        // 3. iPhone 設定較保守的 scale (避免超過 Safari Canvas 記憶體限制)
+        const options = {
+          scale: isIOS ? 1.2 : 2, 
+          useCORS: true,
+          allowTaint: true,
           logging: false,
+          backgroundColor: '#fdf8f5',
           windowWidth: document.documentElement.offsetWidth
-        });
+        };
 
-        const imageBase64 = canvas.toDataURL('image/png');
+        const canvas = await html2canvas(captureArea, options);
 
-        // 轉換為 File 物件以呼叫 iPhone 原生分享選單
-        const response = await fetch(imageBase64);
-        const blob = await response.blob();
-        const file = new File([blob], 'our-birthday-memory.png', { type: 'image/png' });
+        // 4. 將 Canvas 轉為 Blob 檔案
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            throw new Error('Canvas 產生 Blob 失敗');
+          }
 
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: 'Happy Birthday Memory',
-            text: '這是我為妳準備的生日紀念頁面卡片 ❤️'
-          });
-        } else {
-          // 若無法跳出選單（如 Android 舊版或桌面瀏覽器），則直接下載
-          const downloadLink = document.createElement('a');
-          downloadLink.href = imageBase64;
-          downloadLink.download = 'our-birthday-memory.png';
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          document.body.removeChild(downloadLink);
-        }
+          const file = new File([blob], 'our-birthday-memory.png', { type: 'image/png' });
 
-        confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 } });
+          // 【策略一】嘗試呼叫 iPhone 原生分享選單 (點擊選單內的「儲存影像」即可存入相簿)
+          let sharedSuccess = false;
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: 'Happy Birthday Memory',
+                text: '這是我為妳準備的生日紀念頁面卡片 ❤️'
+              });
+              sharedSuccess = true;
+            } catch (shareErr) {
+              console.log('使用者取消分享或不支援:', shareErr);
+            }
+          }
+
+          // 【策略二】如果原生分享失敗，使用 iPhone 最穩定的「長按圖片儲存」彈窗
+          if (!sharedSuccess) {
+            showImageModal(canvas.toDataURL('image/png'));
+          }
+
+          confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 } });
+          saveBtn.innerText = '🎁 打包儲存整頁生日紀錄長圖';
+          saveBtn.disabled = false;
+
+        }, 'image/png', 0.92);
+
       } catch (error) {
         console.error('截圖失敗:', error);
-        alert('產生長圖時失敗，建議直接使用手機內建截圖功能儲存喔！');
-      } finally {
+        alert('產生圖片時遇到問題，建議直接使用 iPhone 內建截圖功能（電源鍵 + 音量上鍵）儲存喔！');
         saveBtn.innerText = '🎁 打包儲存整頁生日紀錄長圖';
         saveBtn.disabled = false;
       }
+    }
+
+    // iPhone 備用彈窗：顯示圖片讓使用者長按儲存
+    function showImageModal(imgDataUrl) {
+      const oldModal = document.getElementById('imgResultModal');
+      if (oldModal) oldModal.remove();
+
+      const modal = document.createElement('div');
+      modal.id = 'imgResultModal';
+      modal.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+      `;
+
+      modal.innerHTML = `
+        <div style="color: white; font-size: 1rem; margin-bottom: 12px; text-align: center; font-weight: 500;">
+          🎉 紀念長圖已生成！<br>
+          <span style="color: #ffb3b3; font-size: 0.9rem;">👇 請「長按下方圖片」，點選「加入照片」儲存</span>
+        </div>
+        <div style="max-height: 70vh; overflow-y: auto; width: 100%; text-align: center; border-radius: 8px; background: #fff;">
+          <img src="${imgDataUrl}" style="width: 100%; height: auto; display: block; -webkit-touch-callout: default;" />
+        </div>
+        <button onclick="document.getElementById('imgResultModal').remove()" style="
+          margin-top: 16px;
+          background: white;
+          color: #333;
+          border: none;
+          padding: 10px 24px;
+          border-radius: 20px;
+          font-size: 0.95rem;
+          font-weight: bold;
+          cursor: pointer;
+        ">關閉視窗</button>
+      `;
+
+      document.body.appendChild(modal);
     }
   </script>
 </body>
