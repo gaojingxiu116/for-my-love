@@ -27,25 +27,24 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    body {
+    html, body {
       background-color: var(--bg-color);
       color: var(--text-color);
       font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-      overflow-x: hidden;
       line-height: 1.6;
+      width: 100%;
+      /* 移除 overflow-x: hidden 以避免 Safari 長截圖抓不到高度 */
       touch-action: manipulation;
-      padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* ------------------- Hero 首頁區塊 ------------------- */
+    /* ------------------- Hero 首頁區塊（修正長截圖高度問題） ------------------- */
     .hero {
-      min-height: 100dvh;
+      padding: 80px 24px 40px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 20px 24px;
       position: relative;
       background: linear-gradient(180deg, #fff5f5 0%, var(--bg-color) 100%);
     }
@@ -65,8 +64,7 @@
     }
 
     .scroll-hint {
-      position: absolute;
-      bottom: 25px;
+      margin-top: 25px;
       font-size: 0.85rem;
       color: #b5a5a5;
       animation: bounce 2s infinite;
@@ -75,7 +73,7 @@
     /* ------------------- 時間軸區塊 ------------------- */
     .timeline-container {
       max-width: 600px;
-      margin: 30px auto;
+      margin: 20px auto 40px;
       padding: 0 16px;
       position: relative;
     }
@@ -151,6 +149,7 @@
       text-align: center;
       margin: 50px auto 30px;
       padding: 0 20px;
+      max-width: 600px;
     }
 
     .envelope-btn {
@@ -198,6 +197,7 @@
       text-align: center;
       margin: 30px auto 40px;
       padding: 0 16px;
+      max-width: 600px;
     }
 
     .photo-frame-container {
@@ -310,60 +310,63 @@
 </head>
 <body>
 
-  <div id="captureArea">
-    <section class="hero">
-      <h1>Happy Birthday, My Love</h1>
-      <p>這是我為妳準備的小驚喜，記錄著屬於我們的點點滴滴...</p>
-      <div class="scroll-hint">往下滑動解鎖我們的回憶 👇</div>
-    </section>
+  <!-- 1. 首頁 Hero 區塊 -->
+  <section class="hero">
+    <h1>Happy Birthday, My Love</h1>
+    <p>這是我為妳準備的小驚喜，記錄著屬於我們的點點滴滴...</p>
+    <div class="scroll-hint">往下滑動解鎖我們的回憶 👇</div>
+  </section>
 
-    <div class="timeline-container">
-      <div class="timeline-item"><div class="polaroid"><img src="images/1.png" alt="照片 1"><div class="caption"><div class="date">2023.07.26</div><div class="title">我們一起去看電影🎬🍿</div></div></div></div>
-      <div class="timeline-item"><div class="polaroid"><img src="images/2.png" alt="照片 2"><div class="caption"><div class="date">2024.08.02</div><div class="title">一起去新時代玩滑輪 🛼</div></div></div></div>
-      <div class="timeline-item"><div class="polaroid"><img src="images/3.png" alt="照片 3"><div class="caption"><div class="date">2024.10.01</div><div class="title">一起去台北101 </div></div></div></div>
-      <div class="timeline-item"><div class="polaroid"><img src="images/4.png" alt="照片 4"><div class="caption"><div class="date">2024.10.05</div><div class="title">第一次一起去台南玩 🚉</div></div></div></div>
-      <div class="timeline-item"><div class="polaroid"><img src="images/5.png" alt="照片 5"><div class="caption"><div class="date">2025.01.20</div><div class="title">一起去茶六過我的生日 🎂</div></div></div></div>
-      <div class="timeline-item"><div class="polaroid"><img src="images/6.png" alt="照片 6"><div class="caption"><div class="date">2025.02.21</div><div class="title">一起去超多地方玩 ✌️</div></div></div></div>
-      <div class="timeline-item"><div class="polaroid"><img src="images/7.png" alt="照片 7"><div class="caption"><div class="date">2025.08.20</div><div class="title">一起去夏慕尼過妳的生日 🎉</div></div></div></div>
-      <div class="timeline-item"><div class="polaroid"><img src="images/8.png" alt="照片 8"><div class="caption"><div class="date">2026.03.01</div><div class="title">陪 me 去搭飛機 ✈️</div></div></div></div>
-      <div class="timeline-item"><div class="polaroid"><img src="images/9.png" alt="照片 9"><div class="caption"><div class="date">2026.08.14</div><div class="title">一起去買衣服 👕</div></div></div></div>
-    </div>
-
-    <section class="letter-section">
-      <button class="envelope-btn" id="openLetterBtn" onclick="openLetter()">
-        ✉️ 點擊開啟我想對妳說的話
-      </button>
-
-      <div class="letter-card" id="letterCard">
-        <h2>親愛的生日快樂！🎂</h2>
-        <div class="letter-content" id="typedText"></div>
-      </div>
-    </section>
-
-    <section class="photo-frame-section">
-      <div class="photo-frame-container">
-        <h3>Let's Capture a Memory</h3>
-        <p>最後讓我們合照一張紀錄這一天吧！📸</p>
-        
-        <div class="memory-frame">
-          <video id="cameraStream" autoplay playsinline muted></video>
-          <img id="resultImage" alt="合照結果" />
-          <div class="frame-content" id="framePrompt">
-            <div style="font-size: 2.5rem; color: var(--primary-color);">❤️</div>
-            <p>我們的生日合照</p>
-            <small>[ 點擊下方按鈕開啟相機 ]</small>
-          </div>
-        </div>
-        
-        <div class="btn-group">
-          <button class="action-btn" id="mainCameraBtn" onclick="handleMainBtnClick()">📸 開啟相機</button>
-          <button class="action-btn secondary-btn" id="retakeBtn" onclick="retakePhoto()" style="display: none;">🔄 重拍</button>
-          <button class="action-btn" id="downloadBtn" onclick="downloadPhoto()" style="display: none;">⬇️ 儲存合照</button>
-        </div>
-      </div>
-    </section>
+  <!-- 2. 時間軸區塊 -->
+  <div class="timeline-container">
+    <div class="timeline-item"><div class="polaroid"><img src="images/1.png" alt="照片 1"><div class="caption"><div class="date">2023.07.26</div><div class="title">我們一起去看電影🎬🍿</div></div></div></div>
+    <div class="timeline-item"><div class="polaroid"><img src="images/2.png" alt="照片 2"><div class="caption"><div class="date">2024.08.02</div><div class="title">一起去新時代玩滑輪 🛼</div></div></div></div>
+    <div class="timeline-item"><div class="polaroid"><img src="images/3.png" alt="照片 3"><div class="caption"><div class="date">2024.10.01</div><div class="title">一起去台北101 </div></div></div></div>
+    <div class="timeline-item"><div class="polaroid"><img src="images/4.png" alt="照片 4"><div class="caption"><div class="date">2024.10.05</div><div class="title">第一次一起去台南玩 🚉</div></div></div></div>
+    <div class="timeline-item"><div class="polaroid"><img src="images/5.png" alt="照片 5"><div class="caption"><div class="date">2025.01.20</div><div class="title">一起去茶六過我的生日 🎂</div></div></div></div>
+    <div class="timeline-item"><div class="polaroid"><img src="images/6.png" alt="照片 6"><div class="caption"><div class="date">2025.02.21</div><div class="title">一起去超多地方玩 ✌️</div></div></div></div>
+    <div class="timeline-item"><div class="polaroid"><img src="images/7.png" alt="照片 7"><div class="caption"><div class="date">2025.08.20</div><div class="title">一起去夏慕尼過妳的生日 🎉</div></div></div></div>
+    <div class="timeline-item"><div class="polaroid"><img src="images/8.png" alt="照片 8"><div class="caption"><div class="date">2026.03.01</div><div class="title">陪 me 去搭飛機 ✈️</div></div></div></div>
+    <div class="timeline-item"><div class="polaroid"><img src="images/9.png" alt="照片 9"><div class="caption"><div class="date">2026.08.14</div><div class="title">一起去買衣服 👕</div></div></div></div>
   </div>
 
+  <!-- 3. 信封區塊 -->
+  <section class="letter-section">
+    <button class="envelope-btn" id="openLetterBtn" onclick="openLetter()">
+      ✉️ 點擊開啟我想對妳說的話
+    </button>
+
+    <div class="letter-card" id="letterCard">
+      <h2>親愛的生日快樂！🎂</h2>
+      <div class="letter-content" id="typedText"></div>
+    </div>
+  </section>
+
+  <!-- 4. 相框拍照區塊 -->
+  <section class="photo-frame-section">
+    <div class="photo-frame-container">
+      <h3>Let's Capture a Memory</h3>
+      <p>最後讓我們合照一張紀錄這一天吧！📸</p>
+      
+      <div class="memory-frame">
+        <video id="cameraStream" autoplay playsinline muted></video>
+        <img id="resultImage" alt="合照結果" />
+        <div class="frame-content" id="framePrompt">
+          <div style="font-size: 2.5rem; color: var(--primary-color);">❤️</div>
+          <p>我們的生日合照</p>
+          <small>[ 點擊下方按鈕開啟相機 ]</small>
+        </div>
+      </div>
+      
+      <div class="btn-group">
+        <button class="action-btn" id="mainCameraBtn" onclick="handleMainBtnClick()">📸 開啟相機</button>
+        <button class="action-btn secondary-btn" id="retakeBtn" onclick="retakePhoto()" style="display: none;">🔄 重拍</button>
+        <button class="action-btn" id="downloadBtn" onclick="downloadPhoto()" style="display: none;">⬇️ 儲存合照</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 匯出整頁長圖按鈕 -->
   <section class="save-full-page-section">
     <button class="save-page-btn" onclick="showScreenshotGuide()">
       🎁 點此打包儲存整頁生日長圖
