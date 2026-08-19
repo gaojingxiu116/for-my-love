@@ -2,20 +2,15 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <!-- iPhone 手機端防放大與安全區域設定 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Happy Birthday, My Love! ❤️</title>
   
-  <!-- Google 字體、Canvas Confetti 彩帶套件與 html2canvas 網頁截圖套件 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
-  <!-- 網頁轉圖片套件 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
-    /* ------------------- 全局樣式 ------------------- */
     :root {
       --bg-color: #fdf8f5;
       --primary-color: #e88a8a;
@@ -23,7 +18,6 @@
       --text-color: #5a4b4b;
       --card-bg: #ffffff;
       --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-      --frame-border: #f0e2e2;
     }
 
     * {
@@ -41,13 +35,6 @@
       line-height: 1.6;
       touch-action: manipulation;
       padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    /* 包裹整個網頁截圖區域 */
-    #captureArea {
-      background-color: var(--bg-color);
-      width: 100%;
-      position: relative;
     }
 
     /* ------------------- Hero 首頁區塊 ------------------- */
@@ -69,14 +56,12 @@
       color: var(--primary-color);
       margin-bottom: 12px;
       animation: fadeInDown 1.2s ease-out;
-      word-break: break-word;
     }
 
     .hero p {
       font-size: 1.05rem;
       color: #8c7b7b;
       animation: fadeInUp 1.2s ease-out;
-      word-break: break-all;
     }
 
     .scroll-hint {
@@ -87,7 +72,7 @@
       animation: bounce 2s infinite;
     }
 
-    /* ------------------- 時間軸與拍立得區塊 ------------------- */
+    /* ------------------- 時間軸區塊 ------------------- */
     .timeline-container {
       max-width: 600px;
       margin: 30px auto;
@@ -132,11 +117,6 @@
       box-shadow: var(--shadow);
       border-radius: 8px;
       width: 100%;
-      transition: transform 0.2s ease;
-    }
-
-    .polaroid:active {
-      transform: scale(0.98);
     }
 
     .polaroid img {
@@ -157,7 +137,6 @@
       font-size: 0.8rem;
       color: var(--primary-color);
       font-weight: 700;
-      letter-spacing: 0.5px;
     }
 
     .polaroid .title {
@@ -167,11 +146,10 @@
       color: var(--text-color);
     }
 
-    /* ------------------- 信封與真心話區塊 ------------------- */
+    /* ------------------- 信封與真心話 ------------------- */
     .letter-section {
       text-align: center;
       margin: 50px auto 30px;
-      max-width: 100%;
       padding: 0 20px;
     }
 
@@ -185,18 +163,8 @@
       border-radius: 50px;
       cursor: pointer;
       box-shadow: 0 6px 16px rgba(232, 138, 138, 0.4);
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
       width: 100%;
       max-width: 300px;
-      justify-content: center;
-    }
-
-    .envelope-btn:active {
-      transform: scale(0.96);
-      background-color: var(--accent-color);
     }
 
     .letter-card {
@@ -225,11 +193,10 @@
       color: #4a3e3e;
     }
 
-    /* ------------------- 相框與拍照區塊 ------------------- */
+    /* ------------------- 相框拍照區塊 ------------------- */
     .photo-frame-section {
       text-align: center;
       margin: 30px auto 40px;
-      max-width: 100%;
       padding: 0 16px;
     }
 
@@ -239,30 +206,12 @@
       border-radius: 12px;
       box-shadow: var(--shadow);
       border: 1px solid #f3e5e5;
-      position: relative;
-      overflow: hidden;
     }
-
-    .photo-frame-container::before, .photo-frame-container::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 16px;
-      background: #4a3e3e;
-      background-image: radial-gradient(circle, #f3e5e5 4px, transparent 5px);
-      background-size: 24px 16px;
-      background-repeat: repeat-x;
-    }
-    .photo-frame-container::before { top: 0; }
-    .photo-frame-container::after { bottom: 0; }
 
     .photo-frame-container h3 {
       font-family: 'Dancing Script', cursive;
       font-size: 1.8rem;
       color: var(--primary-color);
-      margin-top: 10px;
-      margin-bottom: 6px;
     }
 
     .photo-frame-container p {
@@ -293,7 +242,6 @@
       object-fit: cover;
       display: none;
       transform: scaleX(-1);
-      -webkit-transform: scaleX(-1);
     }
 
     #resultImage {
@@ -301,45 +249,14 @@
       height: 100%;
       object-fit: cover;
       display: none;
-      -webkit-touch-callout: default;
     }
 
     .frame-content {
       position: absolute;
       text-align: center;
       width: 85%;
-      z-index: 2;
     }
 
-    .frame-content .heart-icon {
-      font-size: 2.5rem;
-      color: var(--primary-color);
-      animation: pulse 1s infinite alternate;
-    }
-
-    .frame-content p {
-      font-weight: 700;
-      font-size: 1rem;
-      margin-top: 6px;
-      color: var(--text-color);
-    }
-
-    .frame-content small {
-      display: block;
-      color: #b5a5a5;
-      font-size: 0.8rem;
-      margin-top: 4px;
-    }
-
-    .ios-hint {
-      font-size: 0.8rem;
-      color: #e88a8a;
-      margin-bottom: 12px;
-      display: none;
-      font-weight: 500;
-    }
-
-    /* 按鈕容器群組 */
     .btn-group {
       display: flex;
       gap: 10px;
@@ -358,26 +275,14 @@
       font-weight: 500;
       border-radius: 50px;
       cursor: pointer;
-      box-shadow: 0 6px 15px rgba(232, 138, 138, 0.4);
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
       flex: 1;
-    }
-
-    .action-btn:active {
-      transform: scale(0.96);
-      background-color: var(--accent-color);
     }
 
     .secondary-btn {
       background-color: #8c7b7b;
-      box-shadow: 0 6px 15px rgba(140, 123, 123, 0.3);
     }
 
-    /* ------------------- 5. 匯出整頁紀念長圖區塊 ------------------- */
+    /* ------------------- 匯出整頁長圖按鈕 ------------------- */
     .save-full-page-section {
       text-align: center;
       padding: 0 20px 80px;
@@ -396,145 +301,34 @@
       cursor: pointer;
       box-shadow: 0 8px 20px rgba(216, 105, 105, 0.35);
       width: 100%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
 
-    .save-page-btn:active {
-      transform: scale(0.96);
-    }
-
-    /* ------------------- 動畫 ------------------- */
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-      40% { transform: translateY(-8px); }
-      60% { transform: translateY(-4px); }
-    }
-
-    @keyframes pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
-    }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-8px); } 60% { transform: translateY(-4px); } }
   </style>
 </head>
 <body>
 
-  <!-- 包裹整個要被截圖儲存的區域 -->
   <div id="captureArea">
-    
-    <!-- 1. 首頁 Hero 區塊 -->
     <section class="hero">
       <h1>Happy Birthday, My Love</h1>
       <p>這是我為妳準備的小驚喜，記錄著屬於我們的點點滴滴...</p>
       <div class="scroll-hint">往下滑動解鎖我們的回憶 👇</div>
     </section>
 
-    <!-- 2. 時間軸 / 拍立得照片集 -->
     <div class="timeline-container">
-      <div class="timeline-item">
-        <div class="polaroid">
-          <img src="images/1.png" alt="照片 1" loading="lazy">
-          <div class="caption">
-            <div class="date">2023.07.26</div>
-            <div class="title">我們一起去看電影🎬🍿</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="polaroid">
-          <img src="images/2.png" alt="照片 2" loading="lazy">
-          <div class="caption">
-            <div class="date">2024.08.02</div>
-            <div class="title">一起去新時代玩滑輪 🛼</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="polaroid">
-          <img src="images/3.png" alt="照片 3" loading="lazy">
-          <div class="caption">
-            <div class="date">2024.10.01</div>
-            <div class="title">一起去台北101 </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="polaroid">
-          <img src="images/4.png" alt="照片 4" loading="lazy">
-          <div class="caption">
-            <div class="date">2024.10.05</div>
-            <div class="title">第一次一起去台南玩 🚉</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="polaroid">
-          <img src="images/5.png" alt="照片 5" loading="lazy">
-          <div class="caption">
-            <div class="date">2025.01.20</div>
-            <div class="title">一起去茶六過我的生日 🎂</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="polaroid">
-          <img src="images/6.png" alt="照片 6" loading="lazy">
-          <div class="caption">
-            <div class="date">2025.02.21</div>
-            <div class="title">一起去超多地方玩 ✌️</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="polaroid">
-          <img src="images/7.png" alt="照片 7" loading="lazy">
-          <div class="caption">
-            <div class="date">2025.08.20</div>
-            <div class="title">一起去夏慕尼過妳的生日 🎉</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="polaroid">
-          <img src="images/8.png" alt="照片 8" loading="lazy">
-          <div class="caption">
-            <div class="date">2026.03.01</div>
-            <div class="title">陪 me 去搭飛機 ✈️</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="polaroid">
-          <img src="images/9.png" alt="照片 9" loading="lazy">
-          <div class="caption">
-            <div class="date">2026.08.14</div>
-            <div class="title">一起去買衣服 👕</div>
-          </div>
-        </div>
-      </div>
+      <div class="timeline-item"><div class="polaroid"><img src="images/1.png" alt="照片 1"><div class="caption"><div class="date">2023.07.26</div><div class="title">我們一起去看電影🎬🍿</div></div></div></div>
+      <div class="timeline-item"><div class="polaroid"><img src="images/2.png" alt="照片 2"><div class="caption"><div class="date">2024.08.02</div><div class="title">一起去新時代玩滑輪 🛼</div></div></div></div>
+      <div class="timeline-item"><div class="polaroid"><img src="images/3.png" alt="照片 3"><div class="caption"><div class="date">2024.10.01</div><div class="title">一起去台北101 </div></div></div></div>
+      <div class="timeline-item"><div class="polaroid"><img src="images/4.png" alt="照片 4"><div class="caption"><div class="date">2024.10.05</div><div class="title">第一次一起去台南玩 🚉</div></div></div></div>
+      <div class="timeline-item"><div class="polaroid"><img src="images/5.png" alt="照片 5"><div class="caption"><div class="date">2025.01.20</div><div class="title">一起去茶六過我的生日 🎂</div></div></div></div>
+      <div class="timeline-item"><div class="polaroid"><img src="images/6.png" alt="照片 6"><div class="caption"><div class="date">2025.02.21</div><div class="title">一起去超多地方玩 ✌️</div></div></div></div>
+      <div class="timeline-item"><div class="polaroid"><img src="images/7.png" alt="照片 7"><div class="caption"><div class="date">2025.08.20</div><div class="title">一起去夏慕尼過妳的生日 🎉</div></div></div></div>
+      <div class="timeline-item"><div class="polaroid"><img src="images/8.png" alt="照片 8"><div class="caption"><div class="date">2026.03.01</div><div class="title">陪 me 去搭飛機 ✈️</div></div></div></div>
+      <div class="timeline-item"><div class="polaroid"><img src="images/9.png" alt="照片 9"><div class="caption"><div class="date">2026.08.14</div><div class="title">一起去買衣服 👕</div></div></div></div>
     </div>
 
-    <!-- 3. 真心話信封區塊 -->
     <section class="letter-section">
       <button class="envelope-btn" id="openLetterBtn" onclick="openLetter()">
         ✉️ 點擊開啟我想對妳說的話
@@ -546,51 +340,37 @@
       </div>
     </section>
 
-    <!-- 4. 相框與拍照區塊 -->
-    <section class="photo-frame-section" id="photoFrameSection">
+    <section class="photo-frame-section">
       <div class="photo-frame-container">
         <h3>Let's Capture a Memory</h3>
         <p>最後讓我們合照一張紀錄這一天吧！📸</p>
         
-        <div class="ios-hint" id="iosHint">💡 拍照成功！長按照片可直接「儲存影像」喔！</div>
-
-        <div class="memory-frame" id="memoryFrame">
+        <div class="memory-frame">
           <video id="cameraStream" autoplay playsinline muted></video>
           <img id="resultImage" alt="合照結果" />
-
           <div class="frame-content" id="framePrompt">
-            <div class="heart-icon">❤️</div>
+            <div style="font-size: 2.5rem; color: var(--primary-color);">❤️</div>
             <p>我們的生日合照</p>
             <small>[ 點擊下方按鈕開啟相機 ]</small>
           </div>
         </div>
         
-        <div class="btn-group" id="cameraBtnGroup">
-          <button class="action-btn" id="mainCameraBtn" onclick="handleMainBtnClick()">
-            📸 開啟相機
-          </button>
-
-          <button class="action-btn secondary-btn" id="retakeBtn" onclick="retakePhoto()" style="display: none;">
-            🔄 重拍
-          </button>
-          <button class="action-btn" id="downloadBtn" onclick="downloadPhoto()" style="display: none;">
-            ⬇️ 儲存合照
-          </button>
+        <div class="btn-group">
+          <button class="action-btn" id="mainCameraBtn" onclick="handleMainBtnClick()">📸 開啟相機</button>
+          <button class="action-btn secondary-btn" id="retakeBtn" onclick="retakePhoto()" style="display: none;">🔄 重拍</button>
+          <button class="action-btn" id="downloadBtn" onclick="downloadPhoto()" style="display: none;">⬇️ 儲存合照</button>
         </div>
       </div>
     </section>
+  </div>
 
-  </div> <!-- /#captureArea 結束 -->
-
-  <!-- 5. 匯出整頁紀念長圖按鈕 -->
   <section class="save-full-page-section">
-    <button class="save-page-btn" id="savePageBtn" onclick="exportFullPage()">
-      🎁 打包儲存整頁生日紀錄長圖
+    <button class="save-page-btn" onclick="showScreenshotGuide()">
+      🎁 點此打包儲存整頁生日長圖
     </button>
   </section>
 
   <script>
-    // 真心話內容
     const message = `不知不覺又陪妳度過了一個生日，一轉眼也過了兩年了。
 
 回想起我們一起走過的這段日子，充滿了好多歡笑與美好的回憶。
@@ -608,82 +388,50 @@
 生日快樂，我愛妳 ❤️`;
 
     let index = 0;
-    const typedTextElement = document.getElementById("typedText");
-
     function openLetter() {
       const letterCard = document.getElementById('letterCard');
       const btn = document.getElementById('openLetterBtn');
-
       if (letterCard.style.display === 'block') return;
-
       letterCard.style.display = 'block';
       btn.style.display = 'none';
-
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.7 }
-      });
-
+      confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
       typeWriter();
     }
 
     function typeWriter() {
       if (index < message.length) {
-        typedTextElement.innerHTML += message.charAt(index);
+        document.getElementById("typedText").innerHTML += message.charAt(index);
         index++;
         setTimeout(typeWriter, 60);
       }
     }
 
-    /* ------------------- 相機與重拍功能 ------------------- */
+    /* ------------------- 相機功能 ------------------- */
     const cameraStreamVideo = document.getElementById('cameraStream');
     const resultImage = document.getElementById('resultImage');
     const framePrompt = document.getElementById('framePrompt');
-    const iosHint = document.getElementById('iosHint');
-    
     const mainCameraBtn = document.getElementById('mainCameraBtn');
     const retakeBtn = document.getElementById('retakeBtn');
     const downloadBtn = document.getElementById('downloadBtn');
-
     let localStream = null;
     let isCameraActive = false;
 
     async function handleMainBtnClick() {
-      if (!isCameraActive) {
-        await startCamera();
-      } else {
-        takePhoto();
-      }
+      if (!isCameraActive) await startCamera();
+      else takePhoto();
     }
 
     async function startCamera() {
       try {
-        const constraints = {
-          video: { 
-            facingMode: 'user',
-            width: { ideal: 1280 },
-            height: { ideal: 1280 }
-          },
-          audio: false
-        };
-
-        localStream = await navigator.mediaDevices.getUserMedia(constraints);
-        
+        localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
         cameraStreamVideo.srcObject = localStream;
         cameraStreamVideo.style.display = 'block';
         resultImage.style.display = 'none';
         framePrompt.style.display = 'none';
-        iosHint.style.display = 'none';
-
         isCameraActive = true;
         mainCameraBtn.innerText = '📸 拍照';
-        mainCameraBtn.style.display = 'inline-flex';
-        retakeBtn.style.display = 'none';
-        downloadBtn.style.display = 'none';
       } catch (error) {
-        console.error('iPhone 相機啟動失敗:', error);
-        alert('請允許相機權限！若您使用的是 LINE，請點選右上角選單改用「Safari 開啟」。');
+        alert('請允許相機權限！若在 LINE 內開，請點右上角選「以 Safari 開啟」。');
       }
     }
 
@@ -691,56 +439,26 @@
       const canvas = document.createElement('canvas');
       const width = cameraStreamVideo.videoWidth || 640;
       const height = cameraStreamVideo.videoHeight || 640;
-
       canvas.width = width;
       canvas.height = height;
-
       const ctx = canvas.getContext('2d');
       ctx.translate(width, 0);
       ctx.scale(-1, 1);
       ctx.drawImage(cameraStreamVideo, 0, 0, width, height);
-
-      const dataURL = canvas.toDataURL('image/png');
-      resultImage.src = dataURL;
-
+      resultImage.src = canvas.toDataURL('image/png');
       cameraStreamVideo.style.display = 'none';
       resultImage.style.display = 'block';
-      iosHint.style.display = 'block';
-
       stopCameraStream();
-
       mainCameraBtn.style.display = 'none';
       retakeBtn.style.display = 'inline-flex';
       downloadBtn.style.display = 'inline-flex';
-
       confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
     }
 
-    function retakePhoto() {
-      startCamera();
-    }
+    function retakePhoto() { startCamera(); }
 
     async function downloadPhoto() {
-      if (!resultImage.src) return;
-
-      try {
-        const response = await fetch(resultImage.src);
-        const blob = await response.blob();
-        const file = new File([blob], 'birthday-photo.png', { type: 'image/png' });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: '生日合照',
-            text: '我們的生日合照 ❤️'
-          });
-          return;
-        }
-      } catch (err) {
-        console.log('分享取消:', err);
-      }
-
-      alert('請長按合照圖案，點選「儲存影像」或「加入照片」即可！');
+      alert('請直接「長按這張合照」，點選「儲存影像」或「加入照片」即可存入相簿！');
     }
 
     function stopCameraStream() {
@@ -751,115 +469,44 @@
       isCameraActive = false;
     }
 
-    /* ------------------- 5. 打包截圖整頁紀念長圖 (iPhone 深度優化版) ------------------- */
-    async function exportFullPage() {
-      const saveBtn = document.getElementById('savePageBtn');
-      saveBtn.innerText = '⏳ 正在產生紀念長圖中...';
-      saveBtn.disabled = true;
+    /* ------------------- iPhone 超高清長截圖彈窗教學 ------------------- */
+    function showScreenshotGuide() {
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
-      // 1. 確保關閉鏡頭串流，避免 iOS 相機畫面渲染黑屏
-      stopCameraStream();
-
-      try {
-        const captureArea = document.getElementById('captureArea');
-
-        // 2. 判斷是否為 iOS / iPhone
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-        // 3. iPhone 設定較保守的 scale (避免超過 Safari Canvas 記憶體限制)
-        const options = {
-          scale: isIOS ? 1.2 : 2, 
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          backgroundColor: '#fdf8f5',
-          windowWidth: document.documentElement.offsetWidth
-        };
-
-        const canvas = await html2canvas(captureArea, options);
-
-        // 4. 將 Canvas 轉為 Blob 檔案
-        canvas.toBlob(async (blob) => {
-          if (!blob) {
-            throw new Error('Canvas 產生 Blob 失敗');
-          }
-
-          const file = new File([blob], 'our-birthday-memory.png', { type: 'image/png' });
-
-          // 【策略一】嘗試呼叫 iPhone 原生分享選單 (點擊選單內的「儲存影像」即可存入相簿)
-          let sharedSuccess = false;
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({
-                files: [file],
-                title: 'Happy Birthday Memory',
-                text: '這是我為妳準備的生日紀念頁面卡片 ❤️'
-              });
-              sharedSuccess = true;
-            } catch (shareErr) {
-              console.log('使用者取消分享或不支援:', shareErr);
-            }
-          }
-
-          // 【策略二】如果原生分享失敗，使用 iPhone 最穩定的「長按圖片儲存」彈窗
-          if (!sharedSuccess) {
-            showImageModal(canvas.toDataURL('image/png'));
-          }
-
-          confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 } });
-          saveBtn.innerText = '🎁 打包儲存整頁生日紀錄長圖';
-          saveBtn.disabled = false;
-
-        }, 'image/png', 0.92);
-
-      } catch (error) {
-        console.error('截圖失敗:', error);
-        alert('產生圖片時遇到問題，建議直接使用 iPhone 內建截圖功能（電源鍵 + 音量上鍵）儲存喔！');
-        saveBtn.innerText = '🎁 打包儲存整頁生日紀錄長圖';
-        saveBtn.disabled = false;
-      }
-    }
-
-    // iPhone 備用彈窗：顯示圖片讓使用者長按儲存
-    function showImageModal(imgDataUrl) {
-      const oldModal = document.getElementById('imgResultModal');
+      const oldModal = document.getElementById('screenshotModal');
       if (oldModal) oldModal.remove();
 
       const modal = document.createElement('div');
-      modal.id = 'imgResultModal';
+      modal.id = 'screenshotModal';
       modal.style.cssText = `
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.85);
+        background: rgba(0, 0, 0, 0.88);
         z-index: 99999;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 20px;
+        padding: 24px;
         box-sizing: border-box;
+        color: white;
       `;
 
       modal.innerHTML = `
-        <div style="color: white; font-size: 1rem; margin-bottom: 12px; text-align: center; font-weight: 500;">
-          🎉 紀念長圖已生成！<br>
-          <span style="color: #ffb3b3; font-size: 0.9rem;">👇 請「長按下方圖片」，點選「加入照片」儲存</span>
+        <div style="background: white; color: #333; border-radius: 16px; padding: 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <div style="font-size: 2.5rem; margin-bottom: 8px;">📸</div>
+          <h3 style="color: #e88a8a; font-size: 1.2rem; margin-bottom: 12px;">iPhone 超高清儲存方式</h3>
+          <p style="font-size: 0.9rem; color: #666; text-align: left; line-height: 1.7; margin-bottom: 16px;">
+            1. 同時按下 <b>「電源鍵 + 音量上鍵」</b> 截圖。<br>
+            2. 點擊左下角的截圖預覽小圖。<br>
+            3. 點選頂部的 <b>「整頁」</b>。<br>
+            4. 點擊右上角分享按鈕 ⬆️ 選 <b>「儲存影像」</b> 即可！
+          </p>
+          <button onclick="document.getElementById('screenshotModal').remove()" style="
+            background: #e88a8a; color: white; border: none; padding: 10px 24px;
+            border-radius: 20px; font-size: 0.95rem; font-weight: bold; width: 100%; cursor: pointer;
+          ">我知道了！</button>
         </div>
-        <div style="max-height: 70vh; overflow-y: auto; width: 100%; text-align: center; border-radius: 8px; background: #fff;">
-          <img src="${imgDataUrl}" style="width: 100%; height: auto; display: block; -webkit-touch-callout: default;" />
-        </div>
-        <button onclick="document.getElementById('imgResultModal').remove()" style="
-          margin-top: 16px;
-          background: white;
-          color: #333;
-          border: none;
-          padding: 10px 24px;
-          border-radius: 20px;
-          font-size: 0.95rem;
-          font-weight: bold;
-          cursor: pointer;
-        ">關閉視窗</button>
       `;
 
       document.body.appendChild(modal);
